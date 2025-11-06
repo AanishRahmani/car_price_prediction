@@ -1,5 +1,7 @@
 # 🚗 Car Price Predictor
 
+###check it out at https://car-price-prediction-7yxb.onrender.com/
+
 A machine learning web application that predicts used car prices based on various features like company, model, year, fuel type, and kilometers driven. Built with FastAPI backend, HTML/CSS/JavaScript frontend, and a scikit-learn Linear Regression model.
 
 ![Car Price Predictor](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
@@ -45,5 +47,3 @@ A machine learning web application that predicts used car prices based on variou
 ### Package Management
 
 - **uv**: Fast Python package installer and resolver
-
-## 📁 Project Structure
