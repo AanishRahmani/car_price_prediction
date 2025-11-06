@@ -1,6 +1,6 @@
 # 🚗 Car Price Predictor
 
-###check it out at https://car-price-prediction-7yxb.onrender.com/
+### check it out at https://car-price-prediction-7yxb.onrender.com/
 
 A machine learning web application that predicts used car prices based on various features like company, model, year, fuel type, and kilometers driven. Built with FastAPI backend, HTML/CSS/JavaScript frontend, and a scikit-learn Linear Regression model.
 
