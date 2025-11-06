@@ -11,6 +11,8 @@ import pickle
 car =pd.read_csv('cleaned_car.csv')
 
 
+# model=pickle.load(open('LinearRegressionModel.pkl','rb'))
+
 with open('LinearRegressionModel.pkl','rb') as f:
     model=pickle.load(f)
 
