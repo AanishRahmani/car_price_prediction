@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Car Price Predictor</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #232526, #414345);
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+      .card-header {
+        background: #007bff;
+        color: white;
+        border-radius: 1rem 1rem 0 0;
+      }
+      .form-control, select {
+        border-radius: 0.5rem;
+      }
+      label {
+        font-weight: 600;
+      }
+      button {
+        border-radius: 0.5rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="card mx-auto" style="max-width: 550px;">
+        <div class="card-header text-center py-3">
+          <h2 class="mb-0">🚗 Car Price Predictor</h2>
+        </div>
+        <div class="card-body bg-light text-dark p-4 rounded-bottom">
+          <form autocomplete="off">
+
+            <!-- Company selector -->
+            <div class="form-group">
+              <label for="company">Select Company</label>
+              <select id="company" class="selectpicker form-control"
+                      name="company" required autocomplete="off"
+                      onchange="load_car_model('company', 'car_model')">
+                <option value="" disabled selected>Select company</option>
+                {% for company in companies %}
+                  <option value="{{ company }}">{{ company }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Model selector -->
+            <div class="form-group">
+              <label for="car_model">Car Model</label>
+              <select id="car_model" 
+                      class="selectpicker form-control"
+                      name="car_model"
+                      required autocomplete="off">
+                <option value="" disabled selected>Select a company first</option>
+              </select>
+            </div>
+<!-- Year selector -->
+<div class="form-group">
+  <label for="year">Select Year</label>
+  <select class="form-control" id="year" name="year" required autocomplete="off">
+    <option value="" disabled selected>Select year</option>
+    {% for y in year %}
+      <option value="{{ y }}">{{ y }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+<!-- Fuel type selector -->
+<div class="form-group">
+  <label for="fuel">Select Fuel Type</label>
+  <select class="form-control" id="fuel" name="fuel" required autocomplete="off">
+    <option value="" disabled selected>Select fuel type</option>
+    {% for f in fuel_type %}
+      <option value="{{ f }}">{{ f }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+
+<!-- Kilometers -->
+<div class="form-group">
+  <label for="kilometer">Kilometers Driven</label>
+  <input type="number" 
+         class="form-control" 
+         id="kilometer" 
+         name="kilometer"
+         placeholder="Enter kilometers driven"
+         min="0" 
+         step="1"
+         required>
+</div>
+
+            <button type="button" class="btn btn-primary btn-block py-2 mt-3" onclick="send_data()">
+              Predict Price
+            </button>
+          </form>
+        <br>
+        </div>
+        <div class="row">
+          <div class="col-12" style="text-align: center;">
+            <h2>
+              <span id="prediction"></span>
+            </h2>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript data -->
+    <script id="car-data" type="application/json">
+      {{ car_models | tojson | safe }}
+    </script>
+
+    <!-- Existing JavaScript (unchanged) -->
+    <script>
+    function load_car_model(companyId, modelId) {
+      // console.log(companyId);
+      // console.log(modelId);
+      const companySelect = document.getElementById(companyId);
+      const modelSelect = document.getElementById(modelId);
+
+      if (!companySelect || !modelSelect) {
+        // console.error("Missing company or model select element.");
+        return;
+      }
+
+      const selectedCompany = companySelect.value;
+      // console.log(selectedCompany);
+
+      // Parse the data from the hidden JSON
+      const carModelsByCompany = JSON.parse(
+        document.getElementById("car-data").textContent
+      ).filter(model => model.includes(selectedCompany));
+
+      // console.log(carModelsByCompany);
+
+      modelSelect.innerHTML = "";
+
+      const placeholder = document.createElement("option");
+      placeholder.text = "Select model";
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      modelSelect.add(placeholder);
+
+      const models = carModelsByCompany.filter(model => model.includes(selectedCompany)) || [];
+      models.filter(model => model.includes(selectedCompany)).forEach((model) => {
+        const option = document.createElement("option");
+        option.value = model;
+        option.text = model;
+        modelSelect.add(option);
+      });
+    }
+
+    function form_handler(event){
+      event.preventDefault()
+    }
+
+function send_data() {
+  document.getElementById("prediction").innerHTML =
+    "Please wait! Predicting the price...";
+
+    const fd = new FormData();
+  fd.append("company", document.getElementById("company").value);
+  fd.append("car_model", document.getElementById("car_model").value);
+  fd.append("year", document.getElementById("year").value);
+  fd.append("fuel", document.getElementById("fuel").value);
+  fd.append("kilometer", document.getElementById("kilometer").value);
+
+  // console.log("Sending data:");
+  for (let [key, value] of fd.entries()) {
+    console.log(key + ": " + value);
+  }
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/predict", true);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        document.getElementById("prediction").innerHTML =
+          "Prediction: ₹" + response.predicted_price;
+      } else {
+        document.getElementById("prediction").innerHTML =
+          " Error: " + xhr.status;
+      }
+    }
+  };
+
+  xhr.send(fd);
+}
+
+
+
+    </script>
+  </body>
+</html>
