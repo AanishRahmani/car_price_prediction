@@ -11,8 +11,6 @@ import pickle
 car =pd.read_csv('cleaned_car.csv')
 
 
-# model=pickle.load(open('LinearRegressionModel.pkl','rb'))
-
 with open('LinearRegressionModel.pkl','rb') as f:
     model=pickle.load(f)
 
@@ -56,13 +54,19 @@ async def predict(request: Request):
         form_dict = dict(form)
         print("🔹 Form data received:", form_dict)
 
-        # Add validation for None values
         year = form_dict.get("year")
         km = form_dict.get("kilometer")
-        company = form_dict.get("company", "")
-        car_model_name = form_dict.get("car_model", "")
-        fuel = form_dict.get("fuel", "")
+        company = form_dict.get("company")
+        car_model_name = form_dict.get("car_model" )
+        fuel = form_dict.get("fuel")
         
+        # for i in [year, km, company, car_model_name, fuel]:
+        #     print(type(i))
+
+        # temp1=int(str(year))
+        # print(type(temp1))
+
+
         if not all([year, km, company, car_model_name, fuel]):
             return JSONResponse(
                 content={"error": "All fields are required"}, 
